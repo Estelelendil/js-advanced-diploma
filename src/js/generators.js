@@ -12,8 +12,8 @@
  */
 export function* characterGenerator(allowedTypes, maxLevel) {
   while (true) {
-    const randomFerst = Math.round(Math.random(allowedTypes.length));
-    let randomSecond = Math.round(Math.random(maxLevel));// как сделать чтоб не округлял до нуля
+    const randomFerst = Math.round(Math.random() * (allowedTypes.length - 1));
+    let randomSecond = Math.round(Math.random() * maxLevel);// как сделать чтоб не округлял до нуля
     if (randomSecond === 0) {
       randomSecond = Math.round(Math.random(maxLevel));
     }
