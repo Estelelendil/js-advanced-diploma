@@ -1,3 +1,6 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-shadow */
+/* eslint-disable no-unused-vars */
 /**
  * @todo
  * @param index - индекс поля
@@ -23,8 +26,39 @@
  * ```
  * */
 export function calcTileType(index, boardSize) {
-  // TODO: ваш код будет тут
-  return 'center';
+  const arr = [];
+  function normalRow(arr, boardSize) {
+    arr.push('left');
+    for (let i = 0; i < boardSize - 2; i++) {
+      arr.push('center');
+    }
+    arr.push('right');
+    return arr;
+  }
+
+  function topRow(arr, boardSize) {
+    arr.push('top-left');
+    for (let i = 0; i < boardSize - 2; i++) {
+      arr.push('top');
+    }
+    arr.push('top-right');
+    return arr;
+  }
+
+  function bottomRow(arr, boardSize) {
+    arr.push('bottom-left');
+    for (let i = 0; i < boardSize - 2; i++) {
+      arr.push('bottom');
+    }
+    arr.push('bottom-right');
+    return arr;
+  }
+  topRow(arr, boardSize);
+  for (let i = 0; i < boardSize - 2; i++) {
+    normalRow(arr, boardSize);
+  }
+  bottomRow(arr, boardSize);
+  return arr[index];
 }
 
 export function calcHealthLevel(health) {
