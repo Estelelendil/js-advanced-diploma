@@ -19,9 +19,7 @@ export default class Character {
     this.defence = 0;
     this.health = 50;
     this.type = type;
-    // new.target=()=>{
-    //   throw new Error('ошибка')}
-    if (new.target) {
+    if (new.target.name === 'Character') {
       throw new Error('Ошибка создания объекта класса');
     }
     //  выбросите исключение, если кто-то использует "new Character()"
