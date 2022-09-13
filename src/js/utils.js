@@ -1,6 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
+
 /**
  * @todo
  * @param index - индекс поля
@@ -79,4 +80,16 @@ export function randomPosition(start) {
   const a = randomizer(1) + start;// либо 6 либо 0
   const b = randomizer(7);
   return 8 * b + a;
+}
+export function uniqueArr(arr) { // нужно не элементы массива сравнивать,а только их position!
+  const result = [];
+  let copyItemIndex;
+  for (let i = 0; i < arr.length; i++) {
+    if (!result.includes(arr[i])) {
+      result.push(arr[i]);
+      copyItemIndex = i;
+    }
+  }
+
+  return copyItemIndex;
 }

@@ -10,22 +10,30 @@ import { generateTeam } from './generators';
 import PositionedCharacter from './PositionedCharacter';
 import Team from './Team';
 import themes from './themes';
-import { randomizer, randomPosition } from './utils';
-// сгенерировать команду, для каждой команды(пока одной)сгенерировать расположение
+import { randomizer, randomPosition, uniqueArr } from './utils';
+
 const goodPlayerTypes = [Magician, Swordsman, Bowman]; // доступные классы игрока
 const badPlayerTypes = [Daemon, Undead, Vampire];
+
 const goodTeam = new Team(generateTeam(goodPlayerTypes, 10, 5));// массив объектов персонажей
 const badTeam = new Team(generateTeam(badPlayerTypes, 10, 5));
-console.log(goodTeam, badTeam);
+
 function teamGeneratorPosition(arr, count) { // count=0 для хороших ребят и 6 для плохих
-  return arr.map((item) => {
+  const newArr = arr.map((item) => {
     const num = randomPosition(count);
-    return new PositionedCharacter(item, num);
+    return new PositionedCharacter(item, num);// TODO:как-то проверять, что позиции не совпадают
   });
+  //   if(uniqueArr(newArr)){
+  //     let x=uniqueArr(newArr)
+  // newArr[x].
+  //   }
+  return newArr;
 }
 const goodTeamPosition = teamGeneratorPosition(goodTeam.characters, 0);
 const badTeamPosition = teamGeneratorPosition(badTeam.characters, 6);
 const arrPositions = [...goodTeamPosition, ...badTeamPosition];
+console.log(arrPositions);
+
 export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
