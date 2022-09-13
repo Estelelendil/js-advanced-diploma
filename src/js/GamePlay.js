@@ -1,3 +1,5 @@
+/* eslint-disable no-alert */
+/* eslint-disable arrow-parens */
 import { calcHealthLevel, calcTileType } from './utils';
 
 export default class GamePlay {
@@ -44,7 +46,7 @@ export default class GamePlay {
     this.saveGameEl = this.container.querySelector('[data-id=action-save]');
     this.loadGameEl = this.container.querySelector('[data-id=action-load]');
 
-    this.newGameEl.addEventListener('click', event => this.onNewGameClick(event));
+    this.newGameEl.addEventListener('click', (event) => this.onNewGameClick(event));
     this.saveGameEl.addEventListener('click', event => this.onSaveGameClick(event));
     this.loadGameEl.addEventListener('click', event => this.onLoadGameClick(event));
 
@@ -203,7 +205,7 @@ export default class GamePlay {
   hideCellTooltip(index) {
     this.cells[index].title = '';
   }
-  
+
   showDamage(index, damage) {
     return new Promise((resolve) => {
       const cell = this.cells[index];
