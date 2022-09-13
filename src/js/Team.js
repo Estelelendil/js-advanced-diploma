@@ -12,5 +12,8 @@
  * ```
  * */
 export default class Team {
+  constructor(arr) {
+    this.characters = arr;
+  }
   // TODO: write your logic here
 }
