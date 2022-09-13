@@ -72,3 +72,11 @@ export function calcHealthLevel(health) {
 
   return 'high';
 }
+export function randomizer(num) {
+  return Math.round(Math.random() * num);
+}
+export function randomPosition(start) {
+  const a = randomizer(1) + start;// либо 6 либо 0
+  const b = randomizer(7);
+  return 8 * b + a;
+}
