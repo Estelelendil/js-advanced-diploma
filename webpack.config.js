@@ -3,6 +3,7 @@ const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
+  entry: '/home/estelelendil/JS/Netology/Продвинутый JS/diplom/src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
   },
