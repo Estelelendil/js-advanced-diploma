@@ -19,6 +19,11 @@ export default class Character {
     this.defence = 0;
     this.health = 50;
     this.type = type;
-    // TODO: выбросите исключение, если кто-то использует "new Character()"
+    // new.target=()=>{
+    //   throw new Error('ошибка')}
+    if (new.target) {
+      throw new Error('Ошибка создания объекта класса');
+    }
+    //  выбросите исключение, если кто-то использует "new Character()"
   }
 }
