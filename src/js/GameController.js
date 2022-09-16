@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import Bowman from './characters/bowman';
@@ -41,11 +42,10 @@ export default class GameController {
   }
 
   init() {
-    // this.gamePlay.addEventListener(){
-
-    // }
     this.gamePlay.drawUi(themes.prairie);// сделать потом привязку по уровням
     this.gamePlay.redrawPositions(arrPositions);// count=0 для хороших ребят и 6 для плохих
+    this.gamePlay.addCellEnterListener((index) => this.onCellEnter(index));
+    this.gamePlay.addCellLeaveListener((index) => this.onCellLeave(index));
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
@@ -55,10 +55,23 @@ export default class GameController {
   }
 
   onCellEnter(index) {
+    console.log(index);
+    let message;
+    arrPositions.map((item) => {
+      if (item.position === index) {
+        message = `\u{1F396}${item.character.level} \u{2694}${item.character.attack} \u{1F6E1}${item.character.defence} \u{2764}${item.character.health}`;
+        this.gamePlay.showCellTooltip(message, index);// почему this здесь не определяется?
+      } return index;
+    });
     // TODO: react to mouse enter
   }
 
   onCellLeave(index) {
-    // TODO: react to mouse leave
+    arrPositions.map((item) => {
+      if (item.num === index) {
+        this.gamePlay.showCellTooltip(index);
+      } return index;
+    });
   }
+  // TODO: react to mouse leave
 }
