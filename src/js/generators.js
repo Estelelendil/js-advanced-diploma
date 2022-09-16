@@ -20,7 +20,6 @@ export function* characterGenerator(allowedTypes, maxLevel) {
     const Char = allowedTypes[randomFerst];
     yield new Char(randomSecond);
   }
-  // TODO: write logic here
   // должен быть дурацкий счетчик с next(
 }
 
@@ -39,5 +38,4 @@ export function generateTeam(allowedTypes, maxLevel, characterCount) {
     team.push(playerGenerator.next().value);// почему-то возвращается только первый объект
   }
   return team;
-  // TODO: write logic here
 }
