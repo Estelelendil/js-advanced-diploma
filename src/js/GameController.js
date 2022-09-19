@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
@@ -7,6 +8,7 @@ import Magician from './characters/magician';
 import Swordsman from './characters/swordman';
 import Undead from './characters/undead';
 import Vampire from './characters/vampire';
+import GameState from './GameState';
 import { generateTeam } from './generators';
 import PositionedCharacter from './PositionedCharacter';
 import Team from './Team';
@@ -39,6 +41,7 @@ export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
+    this.state = null;
   }
 
   init() {
@@ -46,16 +49,45 @@ export default class GameController {
     this.gamePlay.redrawPositions(arrPositions);// count=0 для хороших ребят и 6 для плохих
     this.gamePlay.addCellEnterListener((index) => this.onCellEnter(index));
     this.gamePlay.addCellLeaveListener((index) => this.onCellLeave(index));
+    this.gamePlay.addCellClickListener((index) => this.onCellClick(index));
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
+
+    const stage = this.stateService.load();
+    console.log(stage);
+    this.state = GameState.from(stage);
+    // загружать новое состояние из this. stateService
+    // с помощью объекта класса GameState нужно вытаскивать конкретные данные
   }
 
   onCellClick(index) {
+    console.log(index);
+    let flag = false;
+
+    arrPositions.find((item) => {
+      if (item.position === index && (item.character.type === 'bowman' || item.character.type === 'swordsman' || item.character.type === 'magician')) {
+        if (this.state.choosenHero) {
+          this.gamePlay.deselectCell(this.state.choosenHero);// снимаем выделеннного ранее персонажа,если таковой есть
+        }
+        console.log(index);
+        this.gamePlay.selectCell(index);// устанавливаем нового
+        // eslint-disable-next-line no-debugger
+        this.state.choosenHero = index;// записываем в state
+        this.stateService.save(this.state); // сохраняем
+        flag = true;
+        return flag;
+      }
+      return null;
+    });
+    if (!flag) {
+      return this.gamePlay.constructor.showError('в данной клетке нет доступного персонажа');
+    }
+    return null;
     // TODO: react to click
   }
 
   onCellEnter(index) {
-    console.log(index);
+    // console.log(index);
     let message;
     arrPositions.map((item) => {
       if (item.position === index) {
