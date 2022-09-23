@@ -7,6 +7,8 @@ class Swordsman extends Character {
     this.attack = 40;
     this.defence = 10;
     this.level = level;
+    this.distanseMovie = 4;
+    this.distanseAttack = 1;
   }
 }
 export default Swordsman;
