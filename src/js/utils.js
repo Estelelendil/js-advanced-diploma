@@ -93,3 +93,40 @@ export function uniqueArr(arr) { // нужно не элементы масси�
 
   return copyItemIndex;
 }
+
+const widht = 8;
+const height = 8;
+const numberOfCells = widht * height;
+export const get1DimCoords = (x, y) => x + y * widht;
+export const get2DimCoords = (z) => {
+  const y = Math.trunc(z / height);
+  const x = z - y * height;
+
+  return [x, y];
+};
+
+export const isInsideField = (z) => z >= 0 && z < numberOfCells;
+
+export const generateLegalCells = (position, distance) => {
+  const [x, y] = get2DimCoords(position);
+  const result = [];
+
+  for (let dx = -distance; dx <= distance; dx++) {
+    for (let dy = -distance; dy <= distance; dy++) {
+      const newZ = get1DimCoords(x + dx, y + dy);
+
+      if (isInsideField(newZ)) {
+        result.push(newZ);
+      }
+    }
+  }
+
+  return result;
+};
+
+export function chooseYourSide(obj) {
+  if (obj.type === 'bowman' || obj.type === 'swordsman' || obj.type === 'magician') {
+    return true;
+  }
+  return false;
+}
