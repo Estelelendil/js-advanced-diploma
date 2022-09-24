@@ -130,3 +130,6 @@ export function chooseYourSide(obj) {
   }
   return false;
 }
+export function calcAttack(attacker, target) {
+  return Math.max(attacker.attack - target.defence, attacker.attack * 0.1);
+}
