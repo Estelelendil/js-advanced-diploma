@@ -16,6 +16,7 @@ import PositionedCharacter from './PositionedCharacter';
 import Team from './Team';
 import themes from './themes';
 import {
+  calcAttack,
   chooseYourSide,
   generateLegalCells, randomizer, randomPosition, uniqueArr,
 } from './utils';
@@ -52,7 +53,7 @@ export default class GameController {
 
   init() {
     this.gamePlay.drawUi(themes.prairie);// сделать потом привязку по уровням
-    this.gamePlay.redrawPositions(arrPositions);// count=0 для хороших ребят и 6 для плохих
+    this.gamePlay.redrawPositions(this.arrPositions);// count=0 для хороших ребят и 6 для плохих
     this.gamePlay.addCellEnterListener((index) => this.onCellEnter(index));
     this.gamePlay.addCellLeaveListener((index) => this.onCellLeave(index));
     this.gamePlay.addCellClickListener((index) => this.onCellClick(index));
@@ -71,26 +72,53 @@ export default class GameController {
 
   onCellClick(index) {
     console.log(index);
-    let flag = false;
+    const maybeCharacter = this.arrPositions.find((item) => item.position === index)?.character;
+    const targetIndexInArr = this.arrPositions.findIndex((item) => item.position === index);// индекс в массиве перса по которому тапнули
+    const choosenIndexInArr = this.arrPositions.findIndex((item) => item.position === this.state.position);// находим и возвращаем индекс в массиве с позициями выбранного перса
 
-    arrPositions.find((item) => {
-      if (item.position === index && (item.character.type === 'bowman' || item.character.type === 'swordsman' || item.character.type === 'magician')) {
-        if (this.state.position) {
-          this.gamePlay.deselectCell(this.state.position);// снимаем выделеннного ранее персонажа,если таковой есть
-        }
-        this.gamePlay.selectCell(index);// устанавливаем нового
-        this.state.position = index;// записываем в state
-        this.state.choosenHero = item.character;
-        this.stateService.save(this.state); // сохраняем
-        flag = true;
-        return flag;
-      }
-      return null;
-    });
-    if (!flag) {
-      return this.gamePlay.constructor.showError('в данной клетке нет доступного персонажа');
+    if (!this.state.choosenHero && chooseYourSide(maybeCharacter)) { // eсли не выбран персонаж и клинкули по хорошему
+      this.gamePlay.selectCell(index);// выделяем его
+      this.state.position = index;// записываем в state
+      this.state.choosenHero = maybeCharacter;
     }
-    return null;
+    // если персонаж выбран
+    const legalCellMovies = generateLegalCells(this.state.position, this.state.choosenHero.distanseMovie);
+    const legalCellAttack = generateLegalCells(this.state.position, this.state.choosenHero.distanseAttack);
+
+    if (maybeCharacter && chooseYourSide(maybeCharacter)) { // если тапнули по персу и перс хороший
+      this.gamePlay.deselectCell(this.state.position);// снимаем текущие выделение
+      this.gamePlay.selectCell(index);// устанавливаем нового
+      this.state.position = index;
+      this.state.choosenHero = maybeCharacter; // сохраняем нового выделенного в стор
+    }
+    if (maybeCharacter && !chooseYourSide(maybeCharacter)) { // если тапнули по персу и перс плохой
+      if (legalCellAttack.includes(index)) {
+        // начнется битва!!
+        // у нас есть выбранный перс из store и атакованный из maybeCharacter
+        const attack = calcAttack(this.state.choosenHero, maybeCharacter);
+        console.log('ATTACK', attack);
+        const damage = this.gamePlay.showDamage(index, attack);
+        console.log('DAMAGE', damage);
+        // maybeCharacter.health -= attack;
+        console.log('TARGET', targetIndexInArr);
+        this.arrPositions[targetIndexInArr].character.health -= attack;
+        if (this.arrPositions[targetIndexInArr].character.health <= 0) { // если здоровье меньше нуля, выпиливаем перса
+          console.log('УБИТ?');
+          console.log(this.arrPositions[targetIndexInArr]);
+          this.arrPositions.splice([targetIndexInArr], 1);
+        }
+        this.gamePlay.redrawPositions(this.arrPositions);
+      }
+    }
+    if (!maybeCharacter && legalCellMovies.includes(index)) { // но на клетке нет персонажа никакого и мы можем ходить на клетку
+      this.arrPositions[choosenIndexInArr].position = index;// меняем позицию персонажа. теоретически он в этот момент должен переместитьсчя
+      console.log(this.arrPositions);
+      this.gamePlay.deselectCell(this.state.position);// снимаем выделение со стартовой точки
+      this.state.position = index;
+
+      this.gamePlay.selectCell(index);// устанавливаем выделение в новой точке
+      this.gamePlay.redrawPositions(this.arrPositions);// перерендериваем страницу с новыми позициями
+    }
   }
 
   onCellEnter(index) {
@@ -113,31 +141,11 @@ export default class GameController {
       }
     }
     // если выделенного персонажа в сторе нет
-    const message = `\u{1F396}${maybeCharacter.level} \u{2694}${maybeCharacter.attack} \u{1F6E1}${maybeCharacter.defence} \u{2764}${maybeCharacter.health}`;
+    const targetIndexInArr = this.arrPositions.findIndex((item) => item.position === index);// индекс в массиве перса по которому тапнули
+    const message = `\u{1F396}${this.arrPositions[targetIndexInArr].character.level} \u{2694}${this.arrPositions[targetIndexInArr].character.attack} \u{1F6E1}${this.arrPositions[targetIndexInArr].character.defence} \u{2764}${this.arrPositions[targetIndexInArr].character.health}`;
     this.gamePlay.showCellTooltip(message, index);
     // TODO: почему не высвечивается курсор на атаку
     // как чистить стор
-
-    // arrPositions.find((item) => {
-    //   if (item.position === index && (item.character.type === 'bowman' || item.character.type === 'swordsman' || item.character.type === 'magician')) {
-    //     this.gamePlay.setCursor(cursors.pointer);// проверка на курсор смену персонажа
-    //   }
-    //   if (legalCellMovies.includes(index)) {
-    //     this.gamePlay.setCursor(cursors.pointer);
-    //   }
-    //   if (legalCellAttack.includes(index)) {
-    //     if (item.position === index && (item.character.type === 'daemon' || item.character.type === 'vampire' || item.character.type === 'undead')) {
-    //       console.log(item.character.type);// на атаку
-    //       this.gamePlay.setCursor(cursors.crosshair);
-    //     }
-    //     console.log(legalCellMovies);
-    //   }
-
-    //   if (legalCellMovies.includes(index)) { // просто на клетку для перемещения и это правило перебивает все остальные
-    //     this.gamePlay.setCursor(cursors.pointer);
-    //   } else { this.gamePlay.setCursor(cursors.notallowed); }
-    //   return null;
-    // });
   }
 
   onCellLeave(index) {
