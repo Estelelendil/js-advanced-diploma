@@ -9,6 +9,7 @@ class Magician extends Character {
     this.level = level;
     this.distanseMovie = 1;
     this.distanseAttack = 4;
+    this.active = true;
   }
 }
 export default Magician;

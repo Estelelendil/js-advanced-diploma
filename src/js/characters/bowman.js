@@ -9,6 +9,7 @@ class Bowman extends Character {
     this.level = level;
     this.distanseMovie = 2;
     this.distanseAttack = 2;
+    this.active = true;
   }
 }
 export default Bowman;
