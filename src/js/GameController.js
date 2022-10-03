@@ -42,13 +42,31 @@ const goodTeamPosition = teamGeneratorPosition(goodTeam.characters, 0);
 const badTeamPosition = teamGeneratorPosition(badTeam.characters, 6);
 const arrPositions = [...goodTeamPosition, ...badTeamPosition];
 console.log(arrPositions);
-
+function isDead(index) {
+  if (this.arrPositions[index].character.health <= 0) { // если здоровье меньше нуля, выпиливаем перса
+    console.log('УБИТ?');
+    console.log(this.arrPositions[index]);
+    this.arrPositions.splice([index], 1);
+  }
+}
 export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
     this.state = null;
     this.arrPositions = arrPositions;
+    this.arrIndexGood = this.arrPositions.map((item, index) => {
+      if (chooseYourSide(item.character)) {
+        return index;
+      }
+      return null;
+    });
+    this.arrIndexBad = this.arrPositions.map((item, index) => {
+      if (!chooseYourSide(item.character)) {
+        return index;
+      }
+      return null;
+    });
   }
 
   init() {
@@ -102,11 +120,12 @@ export default class GameController {
         // maybeCharacter.health -= attack;
         console.log('TARGET', targetIndexInArr);
         this.arrPositions[targetIndexInArr].character.health -= attack;
-        if (this.arrPositions[targetIndexInArr].character.health <= 0) { // если здоровье меньше нуля, выпиливаем перса
-          console.log('УБИТ?');
-          console.log(this.arrPositions[targetIndexInArr]);
-          this.arrPositions.splice([targetIndexInArr], 1);
-        }
+        isDead(targetIndexInArr);
+        // if (this.arrPositions[targetIndexInArr].character.health <= 0) { // если здоровье меньше нуля, выпиливаем перса
+        //   console.log('УБИТ?');
+        //   console.log(this.arrPositions[targetIndexInArr]);
+        //   this.arrPositions.splice([targetIndexInArr], 1);
+        // }
         this.gamePlay.redrawPositions(this.arrPositions);
       }
     }
@@ -155,5 +174,23 @@ export default class GameController {
       } return index;
     });
   }
+
   // TODO: react to mouse leave
+  computerStep() {
+    const randomIndex = randomizer(this.arrIndexBad.length);// выбираем рандомного перса из плохих
+    const choose = this.arrPositions[randomIndex];
+    this.gamePlay.selectCell(arrPositions[choose].position);// подсвечиваем его
+    const legalCellAttack = generateLegalCells(choose.position, choose.character.distanseAttack);
+
+    this.arrPositions.map((item, index) => {
+      if (legalCellAttack.includes(item.position) && chooseYourSide(item.character)) { //  проверить есть ли в этом радиусе хорошие персонажи
+        const attack = calcAttack(choose.character, item.character);
+        const damage = this.gamePlay.showDamage(item.position, attack);
+        item.character.health -= attack;
+        isDead(index);
+        this.gamePlay.deselectCell(arrPositions[choose].position);
+      }
+      return null;
+    });
+  }
 }
