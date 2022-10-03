@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable no-shadow */
@@ -177,20 +178,30 @@ export default class GameController {
 
   // TODO: react to mouse leave
   computerStep() {
-    const randomIndex = randomizer(this.arrIndexBad.length);// выбираем рандомного перса из плохих
-    const choose = this.arrPositions[randomIndex];
-    this.gamePlay.selectCell(arrPositions[choose].position);// подсвечиваем его
-    const legalCellAttack = generateLegalCells(choose.position, choose.character.distanseAttack);
+    let randomIndex = randomizer(this.arrIndexBad.length);// выбираем рандомного перса из плохих
+    if (this.arrPositions[randomIndex].character.active) {
+      const choose = this.arrPositions[randomIndex];
+      this.gamePlay.selectCell(arrPositions[choose].position);// подсвечиваем его
+      const legalCellAttack = generateLegalCells(choose.position, choose.character.distanseAttack);
 
-    this.arrPositions.map((item, index) => {
-      if (legalCellAttack.includes(item.position) && chooseYourSide(item.character)) { //  проверить есть ли в этом радиусе хорошие персонажи
-        const attack = calcAttack(choose.character, item.character);
-        const damage = this.gamePlay.showDamage(item.position, attack);
-        item.character.health -= attack;
-        isDead(index);
-        this.gamePlay.deselectCell(arrPositions[choose].position);
-      }
+      this.arrPositions.map((item, index) => {
+        if (legalCellAttack.includes(item.position) && chooseYourSide(item.character)) { //  проверить есть ли в этом радиусе хорошие персонажи
+          const attack = calcAttack(choose.character, item.character);
+          const damage = this.gamePlay.showDamage(item.position, attack);
+          item.character.health -= attack;
+          isDead(index);
+          this.gamePlay.deselectCell(arrPositions[choose].position);
+        }
+        this.arrIndexBad.splice([randomIndex], 1);// наверное, лучше сделать цикл, в котором мы будем крутиться, пока длина не станет 0
+        return null;
+      });
       return null;
-    });
+    }
+    if (this.arrIndexBad.length === 0) {
+      alert('этот тур завершен');
+      return null;
+    }
+    randomIndex = randomizer(this.arrIndexBad.length);
+    return null;
   }
 }
