@@ -133,3 +133,16 @@ export function chooseYourSide(obj) {
 export function calcAttack(attacker, target) {
   return Math.max(attacker.attack - target.defence, attacker.attack * 0.1);
 }
+
+export function calcDistance(obj1, obj2) {
+  const coord1 = get2DimCoords(obj1.position);
+  const coord2 = get2DimCoords(obj2.position);
+  return Math.sqrt((coord1[0] - coord2[0]) ** 2 + (coord1[1] - coord2[1]) ** 2);
+}
+
+export function findNearest(arr) {
+  const dist = arr.map((item) => item[1]);
+  const findMin = Math.min.apply(null, dist);
+  console.log(findMin);
+  return arr.find((item) => item[1] === findMin);
+}
