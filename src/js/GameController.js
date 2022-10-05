@@ -18,7 +18,9 @@ import Team from './Team';
 import themes from './themes';
 import {
   calcAttack,
+  calcDistance,
   chooseYourSide,
+  findNearest,
   generateLegalCells, randomizer, randomPosition, uniqueArr,
 } from './utils';
 
@@ -116,8 +118,8 @@ export default class GameController {
         // у нас есть выбранный перс из store и атакованный из maybeCharacter
         const attack = calcAttack(this.state.choosenHero, maybeCharacter);
         console.log('ATTACK', attack);
-        const damage = this.gamePlay.showDamage(index, attack);
-        console.log('DAMAGE', damage);
+        // const damage = this.gamePlay.showDamage(index, attack);
+        this.gamePlay.showDamage(index, attack);
         // maybeCharacter.health -= attack;
         console.log('TARGET', targetIndexInArr);
         this.arrPositions[targetIndexInArr].character.health -= attack;
@@ -187,10 +189,21 @@ export default class GameController {
       this.arrPositions.map((item, index) => {
         if (legalCellAttack.includes(item.position) && chooseYourSide(item.character)) { //  проверить есть ли в этом радиусе хорошие персонажи
           const attack = calcAttack(choose.character, item.character);
-          const damage = this.gamePlay.showDamage(item.position, attack);
+          this.gamePlay.showDamage(item.position, attack);
           item.character.health -= attack;
           isDead(index);
           this.gamePlay.deselectCell(arrPositions[choose].position);
+        } else { // ecли хороших в радиусе атаки нет
+          const arrDistance = [];// массив с индексом и расстоянием
+          this.arrIndexGood.map((item) => {
+            arrDistance.push([item, calcDistance(choose, this.arrPositions[item])]);
+            return arrDistance;
+          });
+          console.log(arrDistance);
+          const target = findNearest(arrDistance);
+          console.log(target);
+          // функция на координату одного шага в выбранном направлении
+          // будем делать этот шаг пока враг не попадет в радиус поражения или пока не закончится дистанция шага
         }
         this.arrIndexBad.splice([randomIndex], 1);// наверное, лучше сделать цикл, в котором мы будем крутиться, пока длина не станет 0
         return null;
