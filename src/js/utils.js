@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
@@ -140,9 +141,35 @@ export function calcDistance(obj1, obj2) {
   return Math.sqrt((coord1[0] - coord2[0]) ** 2 + (coord1[1] - coord2[1]) ** 2);
 }
 
-export function findNearest(arr) {
+export function calcDistanceForCell(cell1, cell2) {
+  const coord1 = get2DimCoords(cell1);
+  const coord2 = get2DimCoords(cell2);
+  return Math.sqrt((coord1[0] - coord2[0]) ** 2 + (coord1[1] - coord2[1]) ** 2);
+}
+
+export function findNearest(arr) { // массив  массивов с индексом и позицией
   const dist = arr.map((item) => item[1]);
   const findMin = Math.min.apply(null, dist);
   console.log(findMin);
   return arr.find((item) => item[1] === findMin);
+}
+
+export function calcCellMove(char, target) {
+  const arrRadiusMove = generateLegalCells(char.distanseMovie);// массив доступных для хода клеток
+  const arrRadiusAttack = generateLegalCells(char.distanceAttack);
+  const arrDistance = [];
+  arrRadiusMove.map((item) => {
+    // и радиус атаки соизмерять?? как,
+
+    if (!this.arrPosition.some((el) => el.position === item)) { // нужно еще смотреть, чтобы на этой клетке никто не стоял
+      arrDistance.push({
+        dist: calcDistanceForCell(item, target),
+        coord: item,
+      });// массив расстояний и координат
+    }
+    // мне нужна самая дальняя дистанция ,из тех, откуда можно атаковать
+    return arrDistance;
+  });
+  console.log(arrDistance);
+  // const minDist = Math.min.apply(null, arrDistance);// находим минимальное расстояние, но нам нужно вернуть клетку,куда шагаем!
 }
