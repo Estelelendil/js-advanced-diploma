@@ -45,13 +45,7 @@ const goodTeamPosition = teamGeneratorPosition(goodTeam.characters, 0);
 const badTeamPosition = teamGeneratorPosition(badTeam.characters, 6);
 const arrPositions = [...goodTeamPosition, ...badTeamPosition];
 console.log(arrPositions);
-function isDead(index) {
-  if (this.arrPositions[index].character.health <= 0) { // если здоровье меньше нуля, выпиливаем перса
-    console.log('УБИТ?');
-    console.log(this.arrPositions[index]);
-    this.arrPositions.splice([index], 1);
-  }
-}
+
 export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
@@ -94,6 +88,8 @@ export default class GameController {
   onCellClick(index) {
     console.log(index);
     const maybeCharacter = this.arrPositions.find((item) => item.position === index)?.character;
+
+    // TODO проверять на null
     const targetIndexInArr = this.arrPositions.findIndex((item) => item.position === index);// индекс в массиве перса по которому тапнули
     const choosenIndexInArr = this.arrPositions.findIndex((item) => item.position === this.state.position);// находим и возвращаем индекс в массиве с позициями выбранного перса
 
@@ -118,18 +114,16 @@ export default class GameController {
         // у нас есть выбранный перс из store и атакованный из maybeCharacter
         const attack = calcAttack(this.state.choosenHero, maybeCharacter);
         console.log('ATTACK', attack);
-        // const damage = this.gamePlay.showDamage(index, attack);
-        this.gamePlay.showDamage(index, attack);
-        // maybeCharacter.health -= attack;
-        console.log('TARGET', targetIndexInArr);
-        this.arrPositions[targetIndexInArr].character.health -= attack;
-        isDead(targetIndexInArr);
-        // if (this.arrPositions[targetIndexInArr].character.health <= 0) { // если здоровье меньше нуля, выпиливаем перса
-        //   console.log('УБИТ?');
-        //   console.log(this.arrPositions[targetIndexInArr]);
-        //   this.arrPositions.splice([targetIndexInArr], 1);
-        // }
-        this.gamePlay.redrawPositions(this.arrPositions);
+
+        this.gamePlay.setCursor(cursors.notallowed);
+
+        this.gamePlay.showDamage(index, attack).then(() => {
+          console.log('TARGET', targetIndexInArr);
+          this.arrPositions[targetIndexInArr].character.health -= attack;
+          this.isDead(targetIndexInArr);
+          this.gamePlay.redrawPositions(this.arrPositions);
+          this.gamePlay.setCursor(cursors.pointer);
+        });
       }
     }
     if (!maybeCharacter && legalCellMovies.includes(index)) { // но на клетке нет персонажа никакого и мы можем ходить на клетку
@@ -178,6 +172,14 @@ export default class GameController {
     });
   }
 
+  isDead(index) {
+    if (this.arrPositions[index].character.health <= 0) { // если здоровье меньше нуля, выпиливаем перса
+      console.log('УБИТ?');
+      console.log(this.arrPositions[index]);
+      this.arrPositions.splice([index], 1);
+    }
+  }
+
   // TODO: react to mouse leave
   computerStep() {
     let randomIndex = randomizer(this.arrIndexBad.length);// выбираем рандомного перса из плохих
@@ -191,7 +193,7 @@ export default class GameController {
           const attack = calcAttack(choose.character, item.character);
           this.gamePlay.showDamage(item.position, attack);
           item.character.health -= attack;
-          isDead(index);
+          this.isDead(index);
           this.gamePlay.deselectCell(arrPositions[choose].position);
         } else { // ecли хороших в радиусе атаки нет
           const arrDistance = [];// массив с индексом и расстоянием
